@@ -1,6 +1,7 @@
 # miking-emacs
-This repo contains an Emacs mode for editing Miking code
-(MCore/MLang). Pull requests and issue reporting are welcome!
+This repo contains an Emacs mode for editing
+[Miking](https://github.com/miking-lang/miking/) code
+(MCore/MLang). Pull requests and issue reports are welcome!
 
 To use the mode, add the following to your `init.el` file:
 
