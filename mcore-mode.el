@@ -42,7 +42,9 @@
 
 (setq mcore-warning
      '("mexpr"
-       "include"))
+       "include"
+       "never"
+       ))
 
 (setq mcore-keywords-regexp (regexp-opt mcore-keywords 'symbols))
 (setq mcore-operators-regexp (regexp-opt mcore-operators 'symbols))
