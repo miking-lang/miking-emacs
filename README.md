@@ -12,3 +12,7 @@ To use the mode, add the following to your `init.el` file:
 ```
 
 (or run `M-x eval-buffer` in the file defining the mode)
+
+## Companion Packages
+
+- [Ctags support](https://github.com/miking-lang/miking-ctags)
