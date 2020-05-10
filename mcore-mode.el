@@ -69,13 +69,13 @@
 (defvar mcore-mode-syntax-table nil "Syntax table for `mcore-mode'.")
 
 (setq mcore-mode-syntax-table
-     (let ( (synTable (make-syntax-table)))
+     (let ((table (make-syntax-table)))
        ;; Inline comment “// ...”
        ;; Inline comment “-- ...”
-       (modify-syntax-entry ?/ ". 12a" synTable)
-       (modify-syntax-entry ?- "_ 123" synTable)
-       (modify-syntax-entry ?\n ">" synTable)
-       synTable))
+       (modify-syntax-entry ?/ ". 12a" table)
+       (modify-syntax-entry ?- "_ 123" table)
+       (modify-syntax-entry ?\n ">" table)
+       table))
 
 ;;;;;;;;;;;;;;
 ;; prettify ;;
