@@ -44,6 +44,7 @@
      '("mexpr"
        "include"
        "never"
+       "error"
        ))
 
 (setq mcore-keywords-regexp (regexp-opt mcore-keywords 'symbols))
