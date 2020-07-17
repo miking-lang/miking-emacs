@@ -73,6 +73,7 @@
        ;; Inline comment “-- ...”
        (modify-syntax-entry ?/ ". 12a" synTable)
        (modify-syntax-entry ?- "_ 123" synTable)
+       (modify-syntax-entry ?' "\"" synTable)
        (modify-syntax-entry ?\n ">" synTable)
        synTable))
 
@@ -80,15 +81,14 @@
 ;; prettify ;;
 ;;;;;;;;;;;;;;
 
-(defvar mcore-prettify-symbols-alist
-  '(("lam" . ?λ))
-  "List of syntax to prettify for `mcore-mode'.")
+(defun prettify-mcore-list ()
+  (setq prettify-symbols-alist
+        '(
+          ("lam" . 955) ;λ
+          )))
 
-(if (boundp 'prettify-symbols-alist)
-    (add-hook 'mcore-mode-hook
-              (lambda ()
-                (mapc (lambda (pair) (push pair prettify-symbols-alist))
-                      mcore-prettify-symbols-alist))))
+(add-hook 'mcore-mode-hook 'prettify-mcore-list)
+
 
 ;;;;;;;;;;;;;;;;;
 ;; compilation ;;
