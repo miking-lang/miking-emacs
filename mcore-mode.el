@@ -44,6 +44,7 @@
      '("mexpr"
        "include"
        "never"
+       "error"
        ))
 
 (setq mcore-keywords-regexp (regexp-opt mcore-keywords 'symbols))
@@ -68,13 +69,15 @@
 (defvar mcore-mode-syntax-table nil "Syntax table for `mcore-mode'.")
 
 (setq mcore-mode-syntax-table
-     (let ( (synTable (make-syntax-table)))
-       ;; Inline comment “// ...”
-       ;; Inline comment “-- ...”
-       (modify-syntax-entry ?/ ". 12a" synTable)
-       (modify-syntax-entry ?- "_ 123" synTable)
-       (modify-syntax-entry ?\n ">" synTable)
-       synTable))
+      (let ((table (make-syntax-table)))
+        ;; Inline comment “-- ...”
+        (modify-syntax-entry ?- ". 12" table)
+        ;; C-style comments “// ...” and “/* ... */”
+        (modify-syntax-entry ?/ ". 124" table)
+        (modify-syntax-entry ?* ". 23b" table)
+        (modify-syntax-entry ?\n ">" table)
+        (modify-syntax-entry ?' "\"" table)
+        table))
 
 ;;;;;;;;;;;;;;
 ;; prettify ;;
