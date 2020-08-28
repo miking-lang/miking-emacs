@@ -102,7 +102,7 @@
             ;; Set default compile command
             (progn
               (set (make-local-variable 'compile-command)
-                   (concat "miking " (buffer-name)))
+                   (concat "mi " (buffer-name)))
               ;; Get location of standard library from environment
               (let ((path
                      (replace-regexp-in-string
