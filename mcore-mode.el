@@ -70,12 +70,11 @@
 
 (setq mcore-mode-syntax-table
       (let ((table (make-syntax-table)))
-        ;; Inline comment “-- ...”
-        (modify-syntax-entry ?- ". 12" table)
-        ;; C-style comments “// ...” and “/* ... */”
-        (modify-syntax-entry ?/ ". 124" table)
-        (modify-syntax-entry ?* ". 23b" table)
-        (modify-syntax-entry ?\n ">" table)
+        ;; Inline comment "-- ..."
+        ;; Block comment "/- ... -/"
+        (modify-syntax-entry ?- ". 123" table)
+        (modify-syntax-entry ?/ ". 14cn" table)
+        (modify-syntax-entry ?\n "> " table)
         (modify-syntax-entry ?' "\"" table)
         table))
 
