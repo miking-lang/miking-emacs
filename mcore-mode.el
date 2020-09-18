@@ -83,7 +83,7 @@
 ;;;;;;;;;;;;;;
 
 (defvar mcore-prettify-symbols-alist
-  '(("lam" . ?λ))
+  '(("lam" . 955))
   "List of syntax to prettify for `mcore-mode'.")
 
 (if (boundp 'prettify-symbols-alist)
