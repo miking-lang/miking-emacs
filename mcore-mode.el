@@ -125,7 +125,8 @@
 (define-derived-mode mcore-mode prog-mode
  (setq font-lock-defaults '(mcore-font-lock-keywords))
  (setq mode-name "mcore")
- )
+ (setq-local comment-start "--")
+ (setq-local comment-end ""))
 
 ;; Open “*.mcore” in mcore-mode
 (add-to-list 'auto-mode-alist '("\\.mc\\'" . mcore-mode))
