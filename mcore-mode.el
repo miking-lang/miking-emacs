@@ -26,6 +26,7 @@
        "use"
        "utest"
        "with"
+       "using"
       ))
 
 (setq mcore-constants
