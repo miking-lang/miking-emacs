@@ -7,7 +7,6 @@
 ;; Please keep this list sorted
 (setq mcore-keywords
      '(
-       "Lam"
        "con"
        "else"
        "end"
@@ -27,6 +26,7 @@
        "utest"
        "with"
        "using"
+       "external"
       ))
 
 (setq mcore-constants
@@ -36,7 +36,15 @@
         ))
 
 (setq mcore-primitives
-      '( )) ;; Primitive types (intensionally left blank)
+      '(
+        "Unknown"
+        "Int"
+        "Float"
+        "Bool"
+        "Char"
+        "String"
+        "Tensor"
+        ))
 
 (setq mcore-operators
      '( )) ;; Intensionally left blank
