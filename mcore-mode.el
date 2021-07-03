@@ -27,6 +27,9 @@
        "with"
        "using"
        "external"
+       "hole"
+       "switch"
+       "case"
       ))
 
 (setq mcore-constants
