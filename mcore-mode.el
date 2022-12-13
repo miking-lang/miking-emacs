@@ -4,43 +4,8 @@
 ;; Highlighting ;;
 ;;;;;;;;;;;;;;;;;;
 
-;; Please keep this list sorted
-(setq mcore-keywords
-     '(
-       "con"
-       "else"
-       "end"
-       "fix"
-       "if"
-       "in"
-       "lam"
-       "lang"
-       "let"
-       "match"
-       "recursive"
-       "sem"
-       "syn"
-       "then"
-       "type"
-       "use"
-       "utest"
-       "with"
-       "using"
-       "external"
-       "hole"
-       "switch"
-       "case"
-      ))
-
-(setq mcore-constants
-      '(
-        "false"
-        "true"
-        ))
-
-(setq mcore-primitives
-      '(
-        "Unknown"
+(setq mcore-builtin-types
+      '("()"
         "Int"
         "Float"
         "Bool"
@@ -49,20 +14,83 @@
         "Tensor"
         ))
 
-(setq mcore-operators
-     '( )) ;; Intensionally left blank
+(setq mcore-special-types
+      '("Unknown"))
+
+;; Please keep this list sorted
+(setq mcore-base-keywords
+      '(
+        "all"
+        "case"
+        "con"
+        "else"
+        "end"
+        "external"
+        "if"
+        "in"
+        "lam"
+        "lang"
+        "let"
+        "match"
+        "recursive"
+        "sem"
+        "switch"
+        "syn"
+        "then"
+        "type"
+        "use"
+        "using"
+        "utest"
+        "with"
+        ))
+
+(setq mcore-special-keywords
+      '(
+        "include"
+        "mexpr"
+        ))
+
+(setq mcore-extra-keywords
+      '(
+        "hole"
+        "independent"
+        "accelerate"
+        "loop"
+        ))
+
+(setq mcore-constants
+      '(
+        "false"
+        "true"
+        "()"
+        ))
+
+(setq mcore-special-constants
+      '(
+        "never"
+        ))
+
+(setq mcore-builtin-functions
+      '(
+        ;; More could be added
+        "error"
+        ))
+
+(setq mcore-keywords
+      (append
+       mcore-base-keywords
+       mcore-extra-keywords))
 
 (setq mcore-warning
-     '("mexpr"
-       "include"
-       "never"
-       "error"
-       ))
+      (append
+       mcore-special-keywords
+       mcore-special-constants
+       mcore-special-types))
 
 (setq mcore-keywords-regexp (regexp-opt mcore-keywords 'symbols))
-(setq mcore-operators-regexp (regexp-opt mcore-operators 'symbols))
+(setq mcore-builtin-functions-regexp (regexp-opt mcore-builtin-functions 'symbols))
 (setq mcore-constants-regexp (regexp-opt mcore-constants 'symbols))
-(setq mcore-primitives-regexp (regexp-opt mcore-primitives 'symbols))
+(setq mcore-builtin-types-regexp (regexp-opt mcore-builtin-types 'symbols))
 (setq mcore-warning-regexp (regexp-opt mcore-warning 'symbols))
 
 (setq mcore-types-regexp "\\_<[[:upper:]][[:word:]]*\\_>")
@@ -71,8 +99,8 @@
      `(
        (,mcore-keywords-regexp   . font-lock-keyword-face)
        (,mcore-constants-regexp  . font-lock-constant-face)
-       (,mcore-primitives-regexp . font-lock-type-face)
-       (,mcore-operators-regexp  . font-lock-builtin-face)
+       (,mcore-builtin-types-regexp . font-lock-type-face)
+       (,mcore-builtin-functions-regexp  . font-lock-builtin-face)
        (,mcore-types-regexp      . font-lock-type-face)
        (,mcore-warning-regexp     . font-lock-warning-face)
        )
@@ -90,12 +118,100 @@
         (modify-syntax-entry ?' "\"" table)
         table))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tree-sitter support ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar mcore--treesit-font-lock-settings
+  (when (fboundp 'treesit-font-lock-rules)
+    (treesit-font-lock-rules
+     :language 'mlang
+     :feature 'type
+     '((type_ident) @font-lock-type-face
+       (type_param) @font-lock-variable-name-face
+
+       [(unit_type)
+        (bool_type)
+        (int_type)
+        (float_type)
+        (char_type)
+        (string_type)
+        "Tensor"]
+       @font-lock-type-face
+
+       (unknown_type) @font-lock-warning-face
+
+       [(lang_ident) (con_ident)] @font-lock-type-face)
+
+     :language 'mlang
+     :feature 'function-name
+     '((fun_ident) @font-lock-function-name-face
+       (let_bind (var_ident) @font-lock-function-name-face (lam_expr))
+       (funapp_expr :anchor (var_ident) @font-lock-function-name-face))
+
+     :language 'mlang
+     :feature 'variable-name
+     '((fun_param) @font-lock-variable-name-face)
+
+     :language 'mlang
+     :feature 'builtin
+     `((
+        (var_ident) @font-lock-builtin-face
+        (:match
+         ,(concat "^\\(" (string-join mcore-builtin-functions "\\|") "\\)$")
+         @font-lock-builtin-face)
+        ))
+
+     :language 'mlang
+     :feature 'extra-names
+     '((name_pat) @font-lock-variable-name-face
+       (label_ident) @font-lock-property-face
+       (proj_expr "." :anchor (uint) @font-lock-property-face))
+
+     :language 'mlang
+     :feature 'constant
+     :override t
+     '([(uint) (ufloat)] @font-lock-number-face
+
+       (escape_sequence) @font-lock-escape-face
+       (character) @font-lock-string-face
+       (string) @font-lock-string-face
+
+       [(unit)
+        (bool)]
+       @font-lock-constant-face
+
+       (never) @font-lock-warning-face)
+
+     :language 'mlang
+     :feature 'keyword
+     `([,@mcore-base-keywords] @font-lock-keyword-face
+       [,@mcore-special-keywords] @font-lock-warning-face
+       (
+        (var_ident) @font-lock-keyword-face
+        (:match
+         ,(concat "^\\(" (string-join mcore-extra-keywords "\\|") "\\)$")
+         @font-lock-keyword-face)
+        ))
+
+     :language 'mlang
+     :feature 'punctuation
+     '(["(" ")" "{" "}" "[" "]"] @font-lock-bracket-face
+       ["=" ";" ":" "->" "." "," "&" "|" "!" "+" "++"] @font-lock-delimiter-face)
+
+     :language 'mlang
+     :feature 'comment
+     '([(line_comment) (block_comment)] @font-lock-comment-face)))
+  "Tree-sitter font-lock settings for `mcore-mode'.")
+
 ;;;;;;;;;;;;;;
 ;; prettify ;;
 ;;;;;;;;;;;;;;
 
 (defvar mcore-prettify-symbols-alist
-  '(("lam" . 955))                      ; λ
+  '(("lam" . 955)                      ; λ
+    ("all" . 8704)                     ; ∀
+    ("->" . 8594))                     ; →
   "List of syntax to prettify for `mcore-mode'.")
 
 (if (boundp 'prettify-symbols-alist)
@@ -134,13 +250,23 @@
 ;; mode definition ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-(define-derived-mode mcore-mode prog-mode
- (setq font-lock-defaults '(mcore-font-lock-keywords))
- (setq mode-name "mcore")
- (setq-local comment-start "--")
- (setq-local comment-end ""))
+(define-derived-mode mcore-mode prog-mode "mcore"
+  "Major mode for editing Miking MCore code."
+  (setq-local font-lock-defaults '(mcore-font-lock-keywords))
+  (setq-local comment-start "--")
+  (setq-local comment-end "")
 
-;; Open “*.mcore” in mcore-mode
+  (when (and (fboundp 'treesit-ready-p)
+             (treesit-ready-p 'mlang))
+    (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
+    (setq-local treesit-font-lock-feature-list
+                '((comment punctuation)
+                  (keyword type builtin constant)
+                  (function-name variable-name)
+                  (extra-names)))
+    (treesit-major-mode-setup)))
+
+;; Open “*.mc” in mcore-mode
 (add-to-list 'auto-mode-alist '("\\.mc\\'" . mcore-mode))
 
 (provide 'mcore-mode)
