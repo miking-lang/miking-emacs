@@ -9,6 +9,7 @@ To use the mode, add the following to your `init.el` file:
 ;; MCore mode
 (add-to-list 'load-path "/path/to/miking-emacs/")
 (require 'mcore-mode)
+(require 'miking-syn-mode)
 ```
 
 (or run `M-x eval-buffer` in the file defining the mode)
