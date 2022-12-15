@@ -249,6 +249,68 @@
             (add-to-list 'compilation-error-regexp-alist-alist mcore-error-regexp)
             (add-to-list 'compilation-error-regexp-alist 'mcore)))
 
+;;;;;;;;;;;
+;; Imenu ;;
+;;;;;;;;;;;
+
+(defvar mcore--imenu-generic-expression
+  '(("Lets" "^let\\s-+\\([_A-Za-z0-9+]+\\)" 1)
+    ("Types" "^\\s-*\\(type\\|con\\)\\s-+\\([_A-Za-z0-9+]+\\)" 2)
+    ("Langs" "^\\s-*\\(lang\\|sem\\|syn\\)\\s-+\\([_A-Za-z0-9+]+\\)" 2))
+  "A list of regexps for identifying mcore definitions.")
+
+(defun mcore--treesit-imenu-index-function ()
+  "Query tree-sitter for mcore definitions."
+  (seq-filter
+   #'cdr
+   (list
+    `("Langs"
+      .
+      ,(mapcar
+        (pcase-lambda (`(_ . ,node))
+          (let ((lang-name
+                 (cdar (treesit-query-capture node '((lang_ident) @match)))))
+            `(,(treesit-node-text lang-name t) .
+              ((,(treesit-node-text lang-name t) . ,(treesit-node-start lang-name))
+               ,@(mapcar
+                  (pcase-lambda (`(_ . ,node))
+                    `(,(treesit-node-text node t) . ,(treesit-node-start node)))
+                  (treesit-query-capture
+                   node
+                   '((sem_decl (fun_ident) @match)
+                     (sem_type (fun_ident) @match)
+                     (type_decl (type_ident) @match)
+                     (syn_decl (type_ident) @match))))))))
+        (treesit-query-capture
+         'mlang '((mlang) @match))))
+    `("Types"
+      .
+      ,(mapcar
+        (pcase-lambda (`(_ . ,node))
+          `(,(treesit-node-text node t)
+            .
+            ((,(treesit-node-text node t) . ,(treesit-node-start node))
+             ,@(thread-last
+                 (treesit-query-capture
+                  'mlang
+                  `((con_bind (con_ident) @match
+                              (con_type
+                               "->" (type_ident) @type
+                               (:match ,(treesit-node-text node t) @type)))))
+                 (seq-filter (pcase-lambda (`(,capture . _)) (eq capture 'match)))
+                 (mapcar
+                  (pcase-lambda (`(_ . ,node))
+                    `(,(treesit-node-text node t) . ,(treesit-node-start node))))))))
+        (treesit-query-capture
+         'mlang '((type_bind (type_ident) @match)))))
+    `("Lets"
+      .
+      ,(mapcar
+        (pcase-lambda (`(_ . ,node))
+          `(,(treesit-node-text node t) . ,(treesit-node-start node)))
+        (treesit-query-capture
+         'mlang '((source_file (let_bind (var_ident) @match)))))))))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;; mode definition ;;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -258,6 +320,7 @@
   (setq-local font-lock-defaults '(mcore-font-lock-keywords))
   (setq-local comment-start "--")
   (setq-local comment-end "")
+  (setq-local imenu-generic-expression mcore--imenu-generic-expression)
 
   (when (and (fboundp 'treesit-ready-p)
              (treesit-ready-p 'mlang))
@@ -267,6 +330,7 @@
                   (keyword type builtin constant)
                   (function-name variable-name)
                   (pattern-name label-name)))
+    (setq-local imenu-create-index-function #'mcore--treesit-imenu-index-function)
     (treesit-major-mode-setup)))
 
 ;; Open “*.mc” in mcore-mode
