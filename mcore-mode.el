@@ -163,9 +163,12 @@
         ))
 
      :language 'mlang
-     :feature 'extra-names
-     '((name_pat) @font-lock-variable-name-face
-       (label_ident) @font-lock-property-face
+     :feature 'pattern-name
+     '((name_pat) @font-lock-variable-name-face)
+
+     :language 'mlang
+     :feature 'label-name
+     '((label_ident) @font-lock-property-face
        (proj_expr "." :anchor (uint) @font-lock-property-face))
 
      :language 'mlang
@@ -263,7 +266,7 @@
                 '((comment punctuation)
                   (keyword type builtin constant)
                   (function-name variable-name)
-                  (extra-names)))
+                  (pattern-name label-name)))
     (treesit-major-mode-setup)))
 
 ;; Open “*.mc” in mcore-mode
