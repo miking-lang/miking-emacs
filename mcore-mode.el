@@ -315,23 +315,30 @@
 ;; mode definition ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
+;;;###autoload
 (define-derived-mode mcore-mode prog-mode "mcore"
-  "Major mode for editing Miking MCore code."
+  "Major mode for editing MCore files."
   (setq-local font-lock-defaults '(mcore-font-lock-keywords))
   (setq-local comment-start "--")
   (setq-local comment-end "")
-  (setq-local imenu-generic-expression mcore--imenu-generic-expression)
+  (setq-local imenu-generic-expression mcore--imenu-generic-expression))
 
-  (when (and (fboundp 'treesit-ready-p)
-             (treesit-ready-p 'mlang))
-    (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
-    (setq-local treesit-font-lock-feature-list
-                '((comment punctuation)
-                  (keyword type builtin constant)
-                  (function-name variable-name)
-                  (pattern-name label-name)))
-    (setq-local imenu-create-index-function #'mcore--treesit-imenu-index-function)
-    (treesit-major-mode-setup)))
+;;;###autoload
+(define-derived-mode mcore-ts-mode prog-mode "mcore"
+  "Major mode for editing MCore files, powered by tree-sitter."
+  (unless (and (fboundp 'treesit-ready-p)
+               (treesit-ready-p 'mlang))
+    (error "Tree-sitter for MLang isn't available"))
+  (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
+  (setq-local treesit-font-lock-feature-list
+              '((comment punctuation)
+                (keyword type builtin constant)
+                (function-name variable-name)
+                (pattern-name label-name)))
+  (setq-local comment-start "--")
+  (setq-local comment-end "")
+  (setq-local imenu-create-index-function #'mcore--treesit-imenu-index-function)
+  (treesit-major-mode-setup))
 
 ;; Open “*.mc” in mcore-mode
 (add-to-list 'auto-mode-alist '("\\.mc\\'" . mcore-mode))
