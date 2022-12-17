@@ -204,6 +204,34 @@
      '([(line_comment) (block_comment)] @font-lock-comment-face)))
   "Tree-sitter font-lock settings for `mcore-ts-mode'.")
 
+;;;;;;;;;;;;;;;;;
+;; Indentation ;;
+;;;;;;;;;;;;;;;;;
+
+(defvar mcore-indent-level 2
+  "Number of spaces for each indentation step in `mcore-mode'")
+
+(defvar mcore--treesit-indent-rules
+  (let ()
+    `((mlang
+       ((node-is "}") parent-bol 0)
+       ((node-is "]") parent-bol 0)
+       ((node-is ",") parent 0)
+       ((parent-is "sequencing_expr") parent 0)
+       ((parent-is "or_pat") parent -2)
+       ((parent-is "funapp_expr") parent mcore-indent-level)
+       ((query "(_ [\"(\" \"{\" \"[\"] . _ _ @match)") (nth-sibling 1) 0)
+       ((query "(_ \"in\" _ @match)") parent 0)
+       ((query "[\"in\" \"then\" \"else\" \"end\"] @match") parent-bol 0)
+       ((parent-is "sem_decl") parent-bol 0)
+       ((parent-is "syn_decl") parent-bol 0)
+       ((and (parent-is "block_comment") comment-end) comment-start -1)
+       ((parent-is "block_comment") comment-start-skip 0)
+       ((parent-is "source_file") parent-bol 0)
+       (catch-all parent-bol mcore-indent-level)
+       )))
+  "Tree-sitter indentation settings for `mcore-ts-mode'")
+
 ;;;;;;;;;;;;;;
 ;; Prettify ;;
 ;;;;;;;;;;;;;;
@@ -312,6 +340,8 @@
   "Generic mode for editing MCore files."
   (setq-local comment-start "--")
   (setq-local comment-end "")
+  (setq-local comment-start-skip "\\(--\\|/-\\)\\s-*")
+  (setq-local comment-end-skip "\\s-*\\(\\s>\\|-/\\)")
   (setq-local prettify-symbols-alist mcore-prettify-symbols-alist)
   (mcore--setup-compile))
 
@@ -327,6 +357,9 @@
   :syntax-table mcore-mode-syntax-table
   (when (and (featurep 'treesit)
              (treesit-ready-p 'mlang))
+
+    ;; Indentation
+    (setq-local treesit-simple-indent-rules mcore--treesit-indent-rules)
 
     ;; Highlighting
     (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
