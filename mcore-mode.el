@@ -119,10 +119,6 @@
     table)
   "Syntax table for `mcore-mode'.")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Tree-sitter support ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defvar mcore--treesit-font-lock-settings
   (when (featurep 'treesit)
     (treesit-font-lock-rules
@@ -206,7 +202,7 @@
      :language 'mlang
      :feature 'comment
      '([(line_comment) (block_comment)] @font-lock-comment-face)))
-  "Tree-sitter font-lock settings for `mcore-mode'.")
+  "Tree-sitter font-lock settings for `mcore-ts-mode'.")
 
 ;;;;;;;;;;;;;;
 ;; Prettify ;;
@@ -329,17 +325,20 @@
 (define-derived-mode mcore-ts-mode mcore-base-mode "mcore"
   "Major mode for editing MCore files, powered by tree-sitter."
   :syntax-table mcore-mode-syntax-table
-  (unless (and (featurep 'treesit)
-               (treesit-ready-p 'mlang))
-    (error "Tree-sitter for MLang isn't available"))
-  (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
-  (setq-local treesit-font-lock-feature-list
-              '((comment punctuation)
-                (keyword type builtin constant)
-                (function-name variable-name)
-                (pattern-name label-name)))
-  (setq-local imenu-create-index-function #'mcore--treesit-imenu-index-function)
-  (treesit-major-mode-setup))
+  (when (and (featurep 'treesit)
+             (treesit-ready-p 'mlang))
+
+    ;; Highlighting
+    (setq-local treesit-font-lock-settings mcore--treesit-font-lock-settings)
+    (setq-local treesit-font-lock-feature-list
+                '((comment punctuation)
+                  (keyword type builtin constant)
+                  (function-name variable-name)
+                  (pattern-name label-name)))
+
+    (setq-local imenu-create-index-function #'mcore--treesit-imenu-index-function)
+    (setq-local treesit-defun-type-regexp "sem_decl\\|let_bind")
+    (treesit-major-mode-setup)))
 
 ;; Open “*.mc” in mcore-mode
 (add-to-list 'auto-mode-alist '("\\.mc\\'" . mcore-mode))
