@@ -74,6 +74,7 @@
 ;; mode definition ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
+;;;###autoload
 (define-derived-mode miking-syn-mode prog-mode "miking-syn"
   "Major mode for editing Miking miking-syn code."
   (setq-local font-lock-defaults '(miking-syn-font-lock-keywords))
@@ -82,6 +83,7 @@
 )
 
 ;; Open “*.syn” in miking-syn-mode
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.syn\\'" . miking-syn-mode))
 
 (provide 'miking-syn-mode)
