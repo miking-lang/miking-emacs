@@ -374,6 +374,7 @@
     (treesit-major-mode-setup)))
 
 ;; Open “*.mc” in mcore-mode
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.mc\\'" . mcore-mode))
 
 (provide 'mcore-mode)
