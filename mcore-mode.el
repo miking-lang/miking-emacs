@@ -3,6 +3,7 @@
 (require 'pcase)
 (require 'seq)
 (require 'treesit nil 'noerror)
+(require 'compile)
 
 ;;;;;;;;;;;;;;;;;;
 ;; Highlighting ;;
