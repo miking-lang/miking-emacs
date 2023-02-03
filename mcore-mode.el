@@ -2,6 +2,7 @@
 
 (require 'pcase)
 (require 'seq)
+(require 'compile)
 (require 'treesit nil 'noerror)
 
 ;;;;;;;;;;;;;;;;;;
