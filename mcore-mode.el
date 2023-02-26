@@ -261,7 +261,7 @@
              (list (concat "MCORE_STDLIB=" path))))))
 
 (let ((mcore-error-regexp
-       '(mcore "<\\(.+\\) \\([0-9]+\\):\\([0-9]+\\)" 1 2 3)))
+       '(mcore "<\\([^>]+\\) \\([0-9]+\\):\\([0-9]+\\)" 1 2 3)))
   (add-to-list 'compilation-error-regexp-alist-alist mcore-error-regexp)
   (add-to-list 'compilation-error-regexp-alist 'mcore))
 
