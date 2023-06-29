@@ -21,13 +21,23 @@
         "type"
         ))
 
+(setq miking-syn-operators
+      '(
+        "+"
+        "?"
+        "*"
+        "|"
+        ))
+
 (setq miking-syn-types-regexp "\\_<[[:upper:]][[:word:]]*\\_>")
 
 (setq miking-syn-keywords-regexp (regexp-opt miking-syn-keywords 'symbols))
+(setq miking-syn-operators-regexp (regexp-opt miking-syn-operators 'symbols))
 (setq miking-syn-font-lock-keywords
      `(
-       (,miking-syn-keywords-regexp   . font-lock-keyword-face)
-       (,miking-syn-types-regexp      . font-lock-type-face)
+       (,miking-syn-operators-regexp . font-lock-builtin-face)
+       (,miking-syn-keywords-regexp  . font-lock-keyword-face)
+       (,miking-syn-types-regexp     . font-lock-type-face)
        )
      )
 
