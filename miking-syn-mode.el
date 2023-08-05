@@ -1,4 +1,4 @@
-;;; miking-syn-mode.el
+;;; miking-syn-mode.el -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2022 Elias Castegren <elias.castegren@gmail.com>
 ;;
@@ -21,12 +21,13 @@
 ;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+(require 'compile)
 ;;;;;;;;;;;;;;;;;;
 ;; Highlighting ;;
 ;;;;;;;;;;;;;;;;;;
 
 ;; Please keep this list sorted
-(setq miking-syn-keywords
+(defvar miking-syn--keywords
       '(
         "empty"
         "except"
@@ -42,7 +43,7 @@
         "type"
         ))
 
-(setq miking-syn-operators
+(defvar miking-syn--operators
       '(
         "+"
         "?"
@@ -50,29 +51,28 @@
         "|"
         ))
 
-(setq miking-syn-types-regexp "\\_<[[:upper:]][[:word:]]*\\_>")
+(defvar miking-syn--types-regexp "\\_<[[:upper:]][[:word:]]*\\_>")
+(defvar miking-syn--keywords-regexp (regexp-opt miking-syn--keywords 'symbols))
+(defvar miking-syn--operators-regexp (regexp-opt miking-syn--operators 'symbols))
 
-(setq miking-syn-keywords-regexp (regexp-opt miking-syn-keywords 'symbols))
-(setq miking-syn-operators-regexp (regexp-opt miking-syn-operators 'symbols))
-(setq miking-syn-font-lock-keywords
-     `(
-       (,miking-syn-operators-regexp . font-lock-builtin-face)
-       (,miking-syn-keywords-regexp  . font-lock-keyword-face)
-       (,miking-syn-types-regexp     . font-lock-type-face)
-       )
-     )
+(defvar miking-syn-font-lock-keywords
+    `(
+         (,miking-syn--operators-regexp . font-lock-builtin-face)
+         (,miking-syn--keywords-regexp  . font-lock-keyword-face)
+         (,miking-syn--types-regexp     . font-lock-type-face)
+         )
+    "List of font lock keyword specifications to use in `miking-syn-mode'.")
 
-(defvar miking-syn-mode-syntax-table nil "Syntax table for `miking-syn-mode'.")
-
-(setq miking-syn-mode-syntax-table
-      (let ((table (make-syntax-table)))
+(defvar miking-syn-mode-syntax-table
+    (let ((table (make-syntax-table)))
         ;; Inline comment "-- ..."
         ;; Block comment "/- ... -/"
         (modify-syntax-entry ?- ". 123" table)
         (modify-syntax-entry ?/ ". 14cn" table)
         (modify-syntax-entry ?\n "> " table)
         (modify-syntax-entry ?' "\"" table)
-        table))
+        table)
+    "Syntax table for `miking-syn-mode'.")
 
 ;;;;;;;;;;;;;;;;;
 ;; compilation ;;
