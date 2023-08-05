@@ -271,23 +271,31 @@
 ;; Compilation ;;
 ;;;;;;;;;;;;;;;;;
 
+(defun mcore-setup-error-regexp ()
+  ;; Add regexes
+  (let ((mcore-error-regexp
+         '(mcore "<\\([^>]+\\) \\([0-9]+\\):\\([0-9]+\\)\\(-[0-9]+:[0-9]+\\)?>"
+                 1 2 3)))
+    (add-to-list 'compilation-error-regexp-alist-alist mcore-error-regexp)
+    (add-to-list 'compilation-error-regexp-alist 'mcore))
+
+  ;; Try to show ansi colors in compilation buffer
+  ;; from https://stackoverflow.com/questions/13397737/ansi-coloring-in-compilation-mode
+  (when (require 'ansi-color nil t)
+    (defun my-colorize-compilation-buffer ()
+      (when (eq major-mode 'compilation-mode)
+        (ansi-color-apply-on-region compilation-filter-start (point-max))))
+    (if (boundp 'ansi-color-compilation-filter) ; for emacs version >= 28.1
+        (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+        (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer)))
+
+  "Setup error matching and error display in compilation buffers for `mcore-mode'")
+
 (defun mcore--setup-compile ()
+  (mcore-setup-error-regexp)
   ;; Set default compile command
   (set (make-local-variable 'compile-command)
-       (concat "mi " (buffer-name)))
-  ;; Get location of standard library from environment
-  (let ((path
-         (replace-regexp-in-string
-          "[[:space:]\n]*$" ""
-          (shell-command-to-string "$SHELL -l -c 'echo $MCORE_STDLIB'"))))
-    (if (> (length path) 0)
-        (set (make-local-variable 'compilation-environment)
-             (list (concat "MCORE_STDLIB=" path))))))
-
-(let ((mcore-error-regexp
-       '(mcore "<\\([^>]+\\) \\([0-9]+\\):\\([0-9]+\\)\\(-[0-9]+:[0-9]+\\)?>" 1 2 3)))
-  (add-to-list 'compilation-error-regexp-alist-alist mcore-error-regexp)
-  (add-to-list 'compilation-error-regexp-alist 'mcore))
+       (concat "mi " (buffer-name))))
 
 ;;;;;;;;;;;
 ;; Imenu ;;
