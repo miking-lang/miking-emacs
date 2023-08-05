@@ -22,6 +22,8 @@
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (require 'compile)
+(require 'mcore-mode)
+
 ;;;;;;;;;;;;;;;;;;
 ;; Highlighting ;;
 ;;;;;;;;;;;;;;;;;;
@@ -78,28 +80,12 @@
 ;; compilation ;;
 ;;;;;;;;;;;;;;;;;
 
-(add-hook 'miking-syn-mode-hook
-          (lambda ()
-            ;; Set default compile command
-            (progn
-              (set (make-local-variable 'compile-command)
-                   (concat "mi syn " (buffer-name) " " (file-name-sans-extension (buffer-name)) "_gen.mc")))))
-
-(setq miking-syn-error-regexp
-      '(miking-syn "\"\\(.+\\)\" \\([0-9]+\\):\\([0-9]+\\)" 1 2 3))
-(add-hook 'compilation-mode-hook
-          (lambda ()
-            (add-to-list 'compilation-error-regexp-alist-alist miking-syn-error-regexp)
-            (add-to-list 'compilation-error-regexp-alist 'miking-syn)))
-
-;; Display ansi-colors
-; from https://stackoverflow.com/questions/13397737/ansi-coloring-in-compilation-mode
-(require 'ansi-color)
-(defun colorize-compilation-buffer ()
-  (toggle-read-only)
-  (ansi-color-apply-on-region compilation-filter-start (point))
-  (toggle-read-only))
-(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+(defun miking-syn--setup-compile ()
+    (mcore-setup-error-regexp)            ; We have the same error format
+    ;; Set default compile command
+    (set (make-local-variable 'compile-command)
+        (concat "mi syn " (buffer-name) " "
+            (file-name-sans-extension (buffer-name)) "_gen.mc")))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; mode definition ;;
@@ -107,11 +93,11 @@
 
 ;;;###autoload
 (define-derived-mode miking-syn-mode prog-mode "miking-syn"
-  "Major mode for editing Miking miking-syn code."
-  (setq-local font-lock-defaults '(miking-syn-font-lock-keywords))
-  (setq-local comment-start "--")
-  (setq-local comment-end "")
-)
+    "Major mode for editing Miking miking-syn code."
+    (setq-local font-lock-defaults '(miking-syn-font-lock-keywords))
+    (setq-local comment-start "--")
+    (setq-local comment-end "")
+    (miking-syn--setup-compile))
 
 ;; Open “*.syn” in miking-syn-mode
 ;;;###autoload
