@@ -287,7 +287,7 @@
         (ansi-color-apply-on-region compilation-filter-start (point-max))))
     (if (boundp 'ansi-color-compilation-filter) ; for emacs version >= 28.1
         (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
-        (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer)))
+      (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer)))
 
   "Setup error matching and error display in compilation buffers for `mcore-mode'")
 
